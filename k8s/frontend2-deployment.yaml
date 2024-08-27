@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-deployment
+  name: frontend2-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: frontend
+      app: frontend2
   template:
     metadata:
       labels:
-        app: frontend
+        app: frontend2
     spec:
       containers:
-      - name: frontend
-        image: qiuer0121/frontend:latest
+      - name: frontend2
+        image: qiuer0121/frontend2:latest
         ports:
         - containerPort: 8080
