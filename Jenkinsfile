@@ -7,14 +7,14 @@ pipeline {
                 echo '拉取成功'
             }
         }
-        // stage('删除k8s中旧deploy'){
-        //     steps{
-        //         bat '''
-        //         kubectl delete -f k8s/frontend2-deployment.yaml
-        //         kubectl delete -f k8s/frontend2-service.yaml
-        //         '''
-        //     }
-        // }
+        stage('删除k8s中旧deploy'){
+            steps{
+                bat '''
+                kubectl delete -f k8s/frontend2-deployment.yaml || ture
+                kubectl delete -f k8s/frontend2-service.yaml || ture
+                '''
+            }
+        }
         stage('构建运行前端镜像'){
             steps{
                 // 查找并停止旧的容器
@@ -31,7 +31,7 @@ pipeline {
                     docker rm $container
                 }
                 '''
-                bat 'docker rmi -f qiuer0121/frontend2:latest'
+                bat 'docker rmi -f qiuer0121/frontend2:latest || ture'
                 // 构建前端 Docker 镜像
                 bat 'docker build -t qiuer0121/frontend2 -f dockerfile .'
                 echo '构建成功'
