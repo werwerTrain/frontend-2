@@ -2,34 +2,70 @@ pipeline {
     agent any
 
     environment {
-        FRONTEND_IMAGE = "3181577132/frontend:latest"
-        KUBECONFIG = credentials('kubectl_id')
+        // 设置 Docker 镜像的标签
+        FRONTEND_IMAGE = "luluplum/frontend:latest"
+        DOCKER_CREDENTIALS_ID = '9b671c50-14d3-407d-9fe7-de0463e569d2'
+        DOCKER_PASSWORD = 'luluplum'
+        DOCKER_USERNAME = 'woaixuexi0326'
     }
 
     stages {
-        stage('Build Frontend') {
+        stage('Checkout') {
             steps {
+                git branch: 'luluplum', url: 'https://github.com/werwerTrain/fronted.git'
+            }
+        }
+        stage('Build Frontend') { 
+            steps {
+                
                 script {
-                    // 确保环境变量被正确解析
-                    bat "echo Building Docker image: %FRONTEND_IMAGE%"
-                    bat "docker build -t %FRONTEND_IMAGE% ./frontend"
+                    // 查找并停止旧的容器
+                    sh '''
+                    CONTAINERS=$(docker ps -q --filter "ancestor=${FRONTEND_IMAGE}")
+                    if [ -n "$CONTAINERS" ]; then
+                        docker stop $CONTAINERS
+                    fi
+                    '''
+            
+                    // 删除停止的容器
+                    sh '''
+                    CONTAINERS=$(docker ps -a -q --filter "ancestor=${FRONTEND_IMAGE}")
+                    if [ -n "$CONTAINERS" ]; then
+                        docker rm $CONTAINERS
+                    fi
+                    '''
+                    sh '''
+                    docker rmi -f ${FRONTEND_IMAGE} || true
+                    '''
+                    // 构建前端 Docker 镜像
+                    sh 'docker build -t ${FRONTEND_IMAGE} ./frontend'
+                    
                 }
             }
         }
-
-        // stage('Push Frontend Image') {
-        //     steps {
-        //         script {
-        //             bat "echo Pushing Docker image: %FRONTEND_IMAGE%"
-        //             bat "docker push %FRONTEND_IMAGE%"
-        //         }
-        //     }
-        // }
+       
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    // 使用凭证登录 Docker 镜像仓库
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh '''
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                        docker push ${FRONTEND_IMAGE}
+                        '''
+                    }
+                }
+            }
+        }
+        
+        
 
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    bat "kubectl apply -f k8s/frontend-deployment.yaml"
+                    sh 'kubectl delete -f k8s/frontend-deployment.yaml'
+                    // 应用 Kubernetes 配置
+                    sh 'kubectl apply -f k8s/frontend-deployment.yaml'
                 }
             }
         }
@@ -37,23 +73,33 @@ pipeline {
         stage('Service to Kubernetes') {
             steps {
                 script {
-                    bat "kubectl apply -f k8s/frontend-service.yaml"
+                    // 应用 Kubernetes 配置
+                    sh 'kubectl apply -f k8s/frontend-service.yaml'
                 }
             }
         }
 
+        
+
         stage('Integration Test') {
             steps {
                 echo 'tested!'
+                // 等待应用启动
+                //sleep(time: 30, unit: 'SECONDS')
+                
+                // 使用测试工具进行集成测试
+                
                 // 使用 Postman Collection 进行测试
-                //bat 'newman run collection.json'  // 如果使用 Newman 运行 Postman 测试
+                //sh 'newman run collection.json'  // 如果使用 Newman 运行 Postman 测试
+                
             }
         }
     }
 
     post {
         always {
-            bat 'docker system prune -f'
+            // 这里可以添加一些清理步骤，例如清理工作目录或通知
+            sh 'docker system prune -f'
         }
         success {
             echo 'Build and deployment succeeded!'
