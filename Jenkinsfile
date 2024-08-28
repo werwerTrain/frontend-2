@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('拉取前端') {
             steps {
-                git branch: 'windows', url: 'https://github.com/werwerTrain/frontend-2.git'
+                git branch: 'sxq', url: 'https://github.com/werwerTrain/frontend-2.git'
                 echo '拉取成功'
             }
         }
