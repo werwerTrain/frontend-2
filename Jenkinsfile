@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'luluplum', url: 'https://github.com/werwerTrain/fronted.git'
+                git branch: 'luluplum', url: 'https://github.com/werwerTrain/frontend-2.git'
             }
         }
         stage('Build Frontend') { 
