@@ -63,7 +63,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    sh 'kubectl delete -f k8s/frontend-deployment.yaml'
+                    sh 'kubectl delete -f k8s/frontend-deployment.yaml' --ignore-not-found
                     // 应用 Kubernetes 配置
                     sh 'kubectl apply -f k8s/frontend-deployment.yaml'
                 }
