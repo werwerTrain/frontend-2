@@ -7,14 +7,14 @@ pipeline {
                 echo '拉取成功'
             }
         }
-        // stage('删除k8s中旧deploy'){
-        //     steps{
-        //         bat '''
-        //         kubectl delete -f k8s/frontend2-deployment.yaml || ture
-        //         kubectl delete -f k8s/frontend2-service.yaml || ture
-        //         '''
-        //     }
-        // }
+        stage('删除k8s中旧deploy'){
+            steps{
+                bat '''
+                kubectl delete -f k8s/frontend2-deployment.yaml || ture
+                kubectl delete -f k8s/frontend2-service.yaml || ture
+                '''
+            }
+        }
         stage('构建运行前端镜像'){
             steps{
                 // 查找并停止旧的容器
