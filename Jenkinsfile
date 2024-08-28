@@ -63,7 +63,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    sh 'kubectl delete -f k8s/frontend-deployment.yaml' --ignore-not-found
+                    sh 'kubectl delete -f k8s/frontend-deployment.yaml --ignore-not-found' 
                     // 应用 Kubernetes 配置
                     sh 'kubectl apply -f k8s/frontend-deployment.yaml'
                 }
@@ -80,20 +80,6 @@ pipeline {
         }
 
         
-
-        stage('Integration Test') {
-            steps {
-                echo 'tested!'
-                // 等待应用启动
-                //sleep(time: 30, unit: 'SECONDS')
-                
-                // 使用测试工具进行集成测试
-                
-                // 使用 Postman Collection 进行测试
-                //sh 'newman run collection.json'  // 如果使用 Newman 运行 Postman 测试
-                
-            }
-        }
     }
 
     post {
