@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: frontend2
-        image: qiuer0121/frontend2:latest
+        image: bxr0820/frontend2:latest
         ports:
         - containerPort: 8080
