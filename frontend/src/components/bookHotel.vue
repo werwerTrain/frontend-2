@@ -21,6 +21,7 @@
       <el-row style="margin-top:0.5%;">
         <el-col :span="1.5">
           <el-text tag="b" size="large">排序方式:</el-text>
+          
         </el-col>
         <el-col :span="10" style="margin-top:-0.5%;">
           <el-radio-group v-model="sort_type" class="ml-4">
